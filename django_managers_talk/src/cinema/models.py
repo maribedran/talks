@@ -2,18 +2,17 @@ from datetime import date
 from django.db import models
 from django.db.models import Count, F
 
-
 # QuerySets
 
 class FilmeQuerySet(models.QuerySet):
     def da_cidade(self, nome_cidade):
         return self.filter(
-            sessoes__sala__cinema__cidade__nome=nome_cidade
+            sessoes__sala__cinema__cidade__nome__contains=nome_cidade
         )
 
     def do_cinema(self, nome_cinema):
         return self.filter(
-            sessoes__sala__cinema__nome=nome_cinema
+            sessoes__sala__cinema__nome__contains=nome_cinema
         )
 
     def de_hoje(self):
@@ -22,18 +21,21 @@ class FilmeQuerySet(models.QuerySet):
 
 class SessaoQuerySet(models.QuerySet):
     def do_filme(self, nome_filme):
-        return self.filter(filme__nome=nome_filme)
+        return self.filter(filme__titulo__contains=nome_filme)
 
     def da_cidade(self, nome_cidade):
-        return self.filter(sala__cinema__cidade__nome=nome_cidade)
+        return self.filter(sala__cinema__cidade__nome__contains=nome_cidade)
 
     def do_cinema(self, nome_cinema):
-        return self.filter(sala__cinema__nome=nome_cinema)
+        return self.filter(sala__cinema__nome__contains=nome_cinema)
+
+    def de_hoje(self):
+        return self.filter(inicio__date=date.today())
 
     def lotadas(self):
         return self.annotate(
             ocupacao=Count('ingressos')
-        ).filter(sala__lotacao=F('ocupacao'))
+        ).filter(sala__lotacao__lte=F('ocupacao'))
 
     def livres(self):
         return self.annotate(
@@ -62,20 +64,22 @@ class SessaoManager(models.Manager):
         return SessaoQuerySet(self.model, using=self._db)
 
     def do_filme(self, nome_filme):
-        return self.get_queryset().do_filme()
+        return self.get_queryset().do_filme(nome_filme)
 
     def da_cidade(self, nome_cidade):
-        return self.get_queryset().da_cidade()
+        return self.get_queryset().da_cidade(nome_cidade)
 
     def do_cinema(self, nome_cinema):
-        return self.get_queryset().do_cinema()
+        return self.get_queryset().do_cinema(nome_cinema)
+
+    def de_hoje(self):
+        return self.get_queryset().de_hoje()
 
     def lotadas(self):
         return self.get_queryset().lotadas()
 
     def livres(self):
         return self.get_queryset().livres()
-
 
 # Modelos
 
