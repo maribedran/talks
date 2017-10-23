@@ -1,2 +1,0 @@
-rst2html5-tools==0.5.3
-Pygments==2.2.0
