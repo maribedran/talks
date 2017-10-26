@@ -44,7 +44,7 @@ O framework web mais completo que você respeita
     "Uma aplicação web é um software que sabe processar uma requisição e retornar uma resposta para ela."
 
 
-![Browser request](django_docs_request.png)
+![Browser request](images/django_docs_request.png)
 
 
 ---
