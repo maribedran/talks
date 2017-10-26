@@ -1,0 +1,10 @@
+{% if object %}
+    Editar {{ object.titulo }}
+{% else %}
+    Novo Filme
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Salvar" />
+</form>
