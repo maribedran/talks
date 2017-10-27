@@ -367,21 +367,18 @@ urlpatterns = [
 
 ---
 
-## Incluindo urls da app
+## Fazendo todas as operações de CRUD
+
+> **C**reate**R**etrieve**U**pdate**D**elete
+
+---
+
 
 `projec/urls.py`
 
 ```
     url(r'^cinema', include('cinema.urls')),
 ```
-
----
-
-## Fazendo todas as operações de CRUD
-
-> **C**reate**R**etrieve**U**pdate**D**elete
-
----
 
 `cinema/urls.py`
 
