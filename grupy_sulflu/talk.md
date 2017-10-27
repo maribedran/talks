@@ -12,6 +12,9 @@ O framework web mais completo que você respeita
 
 [github.com/maribedran](https://github.com/maribedran)
 
+[maribedran@gmail.com]()
+
+@WPensar SA
 
 ---
 
