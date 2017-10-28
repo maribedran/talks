@@ -38,6 +38,6 @@ urlpatterns = [
             template.render(Context(contexto))
         )
     ),
-    url(r'^cinema', include('cinema.urls')),
+    url(r'^cinema/', include('cinema.urls')),
 ]
 
