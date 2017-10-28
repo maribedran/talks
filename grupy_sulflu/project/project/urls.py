@@ -18,26 +18,29 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.template import Context, Template
 
-texto = """
-<h1>Classe de template: {{ template_class }}</h1>
-<h1>Classe de Contexto: {{ context_class }}</h1>
-"""
 
-template = Template(texto)
-contexto = {
-    "template_class": str(Template),
-    "context_class": str(Context)
-}
+def template_view(request):
+    texto = """
+    <h1>Classe de template: {{ template_class }}</h1>
+    <h1>Classe de Contexto: {{ context_class }}</h1>
+    """
+
+    template = Template(texto)
+    contexto = {
+        "template_class": str(Template),
+        "context_class": str(Context)
+    }
+    return HttpResponse(
+        template.render(Context(contexto))
+    )
+
+def olar(request):
+    return HttpResponse('<h1>Olar!</h1>')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', lambda request: HttpResponse('<h1>Olar!</h1>')),
-    url(
-        r'^templates/$',
-        lambda request: HttpResponse(
-            template.render(Context(contexto))
-        )
-    ),
+    url(r'^$', olar),
+    url(r'^templates/$', template_view),
     url(r'^cinema/', include('cinema.urls')),
 ]
 
