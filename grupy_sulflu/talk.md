@@ -323,9 +323,12 @@ Onde configuramos nossas rotas.
     from django.contrib import admin
     from django.http import HttpResponse
 
+    def olar(request):
+      return HttpResponse('<h1>Olar!</h1>')
+
     urlpatterns = [
         url(r'^admin/', admin.site.urls),
-        url(r'^$', lambda request: HttpResponse('<h1>Olar!</h1>')),
+        url(r'^$', olar),
     ]
 
 ```
@@ -348,21 +351,23 @@ Onde configuramos nossas rotas.
 
 
 ```
-texto = """
-<h1>Classe de template: {{ template_class }}</h1>
-<h1>Classe de Contexto: {{ context_class }}</h1>
-"""
-template = Template(texto)
-contexto = {
-    "template_class": str(Template),
-    "context_class": str(Context)
-}
+def template_view(request):
+    texto = """
+    <h1>Classe de template: {{ template_class }}</h1>
+    <h1>Classe de Contexto: {{ context_class }}</h1>
+    """
+    template = Template(texto)
+    contexto = {
+        "template_class": str(Template),
+        "context_class": str(Context)
+    }
+    return HttpResponse(
+        template.render(Context(contexto))
+    )
 
 urlpatterns = [
-    url(r'^templates/$', lambda request: HttpResponse(
-            template.render(Context(contexto)))),
+    url(r'^templates/$', template_view),
 ]
-
 ```
 
 ---
@@ -377,22 +382,22 @@ urlpatterns = [
 `projec/urls.py`
 
 ```
-    url(r'^cinema', include('cinema.urls')),
+    url(r'^cinema/', include('cinema.urls')),
 ```
 
 `cinema/urls.py`
 
 ```
 urlpatterns = [
-    url(r'^/$',
+    url(r'^$',
         FilmeListView.as_view(), name='filme-list'),
-    url(r'^/criar/$',
+    url(r'^criar/$',
         FilmeCreateView.as_view(), name='filme-create'),
-    url(r'^/(?P<pk>[0-9]+)/$',
+    url(r'^(?P<pk>[0-9]+)/$',
         FilmeDetailView.as_view(), name='filme-detail'),
-    url(r'^/(?P<pk>[0-9]+)/editar/$',
+    url(r'^(?P<pk>[0-9]+)/editar/$',
         FilmeUpdateView.as_view(), name='filme-update'),
-    url(r'^/(?P<pk>[0-9]+)/remover/$',
+    url(r'^(?P<pk>[0-9]+)/remover/$',
         FilmeDeleteView.as_view(), name='filme-delete'),
 ]
 
@@ -646,12 +651,16 @@ Métodos que retornam instâncias do modelo
 ```
 >>> Filme.objects.get(titulo='Exterminador do Futuro')
 <Filme: Exterminador do Futuro>
+
 >>> Filme.objects.first()
 <Filme: Exterminador do Futuro>
+
 >>> Filme.objects.last()
 <Filme: Exterminador do Futuro>
+
 >>> Filme.objects.earliest('id')
 <Filme: Exterminador do Futuro>
+
 >>> Filme.objects.latest('id')
 <Filme: Exterminador do Futuro>
 ```
