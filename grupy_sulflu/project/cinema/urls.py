@@ -6,7 +6,6 @@ from cinema.views import (
     FilmeDetailView,
     FilmeUpdateView,
     FilmeListView,
-    SessaoListView,
 )
 
 urlpatterns = [
@@ -15,5 +14,4 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/$', FilmeDetailView.as_view(), name='filme-detail'),
     url(r'^(?P<pk>[0-9]+)/editar/$', FilmeUpdateView.as_view(), name='filme-update'),
     url(r'^(?P<pk>[0-9]+)/remover/$', FilmeDeleteView.as_view(), name='filme-delete'),
-    url(r'^sessoes/$', SessaoListView.as_view(), name='sessao-list'),
 ]
