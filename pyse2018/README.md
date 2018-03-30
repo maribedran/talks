@@ -4,11 +4,11 @@
 
 @maribedran
 
-[twitter.com/maribedran](https://twitter.com/maribedran)
+[twitter.com](https://twitter.com/maribedran)
 
-[github.com/maribedran](https://github.com/maribedran)
+[github.com](https://github.com/maribedran)
 
-[maribedran@gmail.com]()
+[gmail.com]()
 
 ---
 
@@ -20,7 +20,6 @@ Documentação oficial
 
 [docs.djangoproject.com](https://docs.djangoproject.com/)
 
----
 
 Tutoria do Django Girls
 
@@ -30,15 +29,16 @@ Tutoria do Django Girls
 
 ## O que o Django faz com uma requisição?
 
-1. WSGI é o ponto de entrada da aplicação
-- Decide o que fazer com ela
-2. Middlewares (segurança, sessões, autenticação etc.)
+1. Recebe a requisição HTTP
+- WSGI é o ponto de entrada da aplicação
+2. Decide o que fazer com ela
+- Middlewares (segurança, sessões, autenticação etc.)
 - `urls.py` faz o roteamento *
-3. Devolve uma resposta HTTP
+4. Devolve uma resposta HTTP
 - `views.py` delega tarefas *
-- Lógica de negócio *
+* Lógica de negócio *
 * Validação de dados (`forms.py` ou `serializers.py`)  *
-* Persistência (`models.py` - BD, arquivos locais ou remotos) *
+* Persistência (banco de dados, arquivos locais ou remotos) *
 * Formatação da resposta (**html**, json, xml, arquivo etc) *
 
 ---
@@ -87,8 +87,9 @@ Modelo.
 
 ```
 class Cinema(models.Model):
-     nome = models.CharField(max_length=50)
-     cidade = models.ForeignKey(Cidade)
+    nome = models.CharField('Nome', max_length=50)
+    cidade = models.ForeignKey(Cidade, related_name='cinemas', on_delete=models.CASCADE)
+
 ```
 
 SQL gerado pela migração.
@@ -134,9 +135,10 @@ Podemos customizar o manager do nosso modelo criando uma classe que herde de `mo
 
 ### O QuerySet
 
-  As tarefas de consulta no banco realizadas pelos managers são chamadas ao **QuerySet** do modelo, uma classe que herda de `models.QuerySet` e pode ser customizada da mesma forma que se faz com o manager.
+  O  **QuerySet** do modelo é uma classe que herda de `models.QuerySet` e pode ser customizada da mesma forma que se faz com o manager.
 
-Um objeto QuerySet é um iterável e seus elementos são instâncias do modelo ou objetos python simples.
+ As tarefas de consulta no banco realizadas pelos managers são chamadas ao QuerySet do modelo.
+ Um objeto QuerySet é um iterável e seus elementos são instâncias do modelo ou objetos python simples.
 
 ---
 
@@ -251,9 +253,13 @@ class Ingresso(models.Model):
 
 ---
 
-## Os métodos de manager
+## Os métodos de Managers e QuesySets
+
+---
 
 ### Métodos que retornam instâncias do modelo
+
+---
 
 - `get(**kwargs)`
 
@@ -285,6 +291,8 @@ SELECT ... FROM ... table ORDER BY ... ASC LIMIT 1;
 SELECT ... FROM ... table ORDER BY .. DESC LIMIT 1;
 ```
 
+---
+
 **Atenção!**
 
 `get` levanta a exceção `models.MultipleObjectsReturned` se encontrar mais de uma entrada e `models.DoesNotExist` se não encontrar nenhuma.
@@ -313,6 +321,8 @@ Os demais retornam `None` se não houver entradas correspondentes.
 ---
 
 ### Métodos que criam, atualizam e deletam
+
+---
 
 - `create(**kwargs)`
 
@@ -344,11 +354,13 @@ SELECT ... FROM ... table WHERE ...;
 - `bulk_create`
 
 ```
+INSERT INTO table (<FIELDS>) SELECT ... UNION ALL SELECT ...;
 ```
 
 - `delete`
 
 ```
+DELETE FROM table WHERE ...;
 ```
 
 ---
@@ -379,11 +391,33 @@ Filme: Exterminador do Futuro>
 
 Filtros
 
-- `all()`: `SELECT ... FROM ... table`
-- `none()`: não acessa o banco
-- `filter(**kwargs)`: `SELECT ... FROM table WHERE ...`
-- `exclude(**kwargs)`: `SELECT ... FROM table WHERE NOT ...`
-- `distinct()`: `SELECT DISTINCT ... FROM ... table`
+- `all()`
+
+```
+SELECT ... FROM ... table
+```
+
+- `none()`
+
+não acessa o banco
+
+- `filter(**kwargs)`
+
+```
+SELECT ... FROM table WHERE ...
+```
+
+- `exclude(**kwargs)` 
+
+```
+SELECT ... FROM table WHERE NOT ...
+```
+
+- `distinct()`
+
+```
+SELECT DISTINCT ... FROM ... table
+```
 
 ---
 
@@ -391,24 +425,53 @@ Filtros
 
 Ordenação
 
-- `order_by(arg)`: `SELECT ... FROM ... table ORDER BY ...`
-- `order_by(arg).reverse()` ou `order_by('-ARG')`: `SELECT ... FROM ... table ORDER BY DESC...`
+- `order_by(arg)`
+
+```
+SELECT ... FROM ... table ORDER BY ...
+```
+
+- `order_by(arg).reverse()` ou `order_by('-ARG')`
+
+```
+SELECT ... FROM ... table ORDER BY DESC...
+```
 
 
 ---
 
-### Métodos que retornam QuerySets
+---### Métodos que retornam QuerySets
 
 Valores
 
-- `values(**kargs)`: `SELECT <FIELDS> FROM ... table`
+- `values(**kargs)`
+
+```
+SELECT ... FROM table
+```
+
 * Seleciona todos se não receber argumentos
 * Retorna um QuerySet com dicts
-- `values_list` `SELECT ... FROM ... table`
-*
-- `only` `SELECT ... FROM ... table`
 
-- `defer` `SELECT ... FROM ... table`
+- `values_list(*args)`
+
+```
+SELECT ... FROM table
+```
+
+* Retorna um QuerySet com tuplas de valores
+
+- `only(*args)`
+
+```
+SELECT ... FROM table
+```
+
+- `defer(*args)`
+
+```
+SELECT ... FROM table
+```
 
 
 ---
@@ -416,8 +479,21 @@ Valores
 ### Métodos que retornam QuerySets
 
 Relações com outras tabelas
-- `select_related`
-- `prefetch_related`
+
+- `select_related(*args)`
+
+```
+SELECT ... FROM table
+INNER JOIN table2 ON table.table2_id = table2.id
+```
+
+
+- `prefetch_related(*args)`
+
+```
+SELECT ... FROM table
+SELECT ... FROM table2 WHERE table2.table_id IN …
+```
 
 ---
 
@@ -498,17 +574,44 @@ cinema"."id") WHERE "cinema_cinema"."nome" = Cinemark'
 
 ---
 
-> Todos os métodos que retornam querysets podem ter chamadas encadeadas e a execução deles é *lazzy*, ou seja, é possível chamar vários métodos que fazem queries diferentes, mas que só serão executadas uma vez.
+    Todos os métodos que retornam querysets podem ter chamadas encadeadas e a execução deles é *lazzy*, ou seja, é possível chamar vários métodos que fazem queries diferentes, mas que só serão executadas uma vez.
 
 ---
 
 Métodos que realizam consultas no banco e não retornam querysets
 
-- ``iterator``
-- ``exists``
-- ``count``
-- ``aggregate``
+- `iterator()`
 
+```
+SELECT ... FROM table;
+```
+
+* Retorna um objeto gerador
+* Só realiza a query quando o primeiro elemento é acessado
+
+- `exists()`
+
+```
+SELECT (1) AS "a" FROM table LIMIT 1;
+```
+
+* Retorna um booleano
+
+- `count()`
+
+```
+SELECT COUNT(*) AS "__count" FROM table;
+```
+
+* Retorna um inteiro
+
+- `aggregate(expression)`
+
+```
+SELECT <EXPRESSIO> AS <ALIAS> FROM table;
+```
+
+* Retorna um dict com o valor da expressão
 
 ---
 
@@ -531,7 +634,7 @@ True
 
 ## Customizando Querysets
 
-> Criando uma classe de ``QuerySet`` customizada, podemos criar métodos especiais para fazer consultas que podem ser reaproveitadas em diversos lugares do código.
+    Criando uma classe de ``QuerySet`` customizada, podemos criar métodos especiais para fazer consultas que podem ser reaproveitadas em diversos lugares do código.
 
 
 ---
