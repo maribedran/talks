@@ -1,0 +1,6 @@
+<h1>Filmes em cartaz</h1>
+<ul>
+	{% for filme in object_list %}
+		<li>{{ filme.titulo }}</li>
+	{% endfor %}
+</ul>
