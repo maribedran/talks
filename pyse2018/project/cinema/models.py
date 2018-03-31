@@ -18,6 +18,9 @@ class FilmeQuerySet(models.QuerySet):
     def de_hoje(self):
         return self.filter(sessoes__inicio__date=date.today())
 
+    def do_genero(self, genero):
+        return self.filter(genero=dict(GENEROS).get(genero, 'OUTRO'))
+
 
 class SessaoQuerySet(models.QuerySet):
     def do_filme(self, nome_filme):
@@ -43,62 +46,37 @@ class SessaoQuerySet(models.QuerySet):
         ).filter(sala__lotacao__gte=F('ocupacao'))
 
 
-# Managers
+class IngressoQuerySet(models.QuerySet):
 
-class FilmeManager(models.Manager):
-    def get_queryset(self):
-        return FilmeQuerySet(self.model, using=self._db)
+    def _maior_preco(self):
+        return self.annotate(maior_preco=models.Max('preco'))
 
-    def da_cidade(self, nome_cidade):
-        return self.get_queryset().da_cidade(nome_cidade)
+    def mais_caro(self):
+        return self._maior_preco().latest('maior_preco')
 
-    def do_cinema(self, nome_cinema):
-        return self.get_queryset().do_cinema(nome_cinema)
-
-    def de_hoje(self):
-        return self.get_queryset().de_hoje()
-
-
-class SessaoManager(models.Manager):
-    def get_queryset(self):
-        return SessaoQuerySet(self.model, using=self._db)
-
-    def filme(self, nome_filme):
-        return self.get_queryset().do_filme(nome_filme)
-
-    def cidade(self, nome_cidade):
-        return self.get_queryset().da_cidade(nome_cidade)
-
-    def cinema(self, nome_cinema):
-        return self.get_queryset().do_cinema(nome_cinema)
-
-    def hoje(self):
-        return self.get_queryset().de_hoje()
-
-    def lotadas(self):
-        return self.get_queryset().lotadas()
-
-    def livres(self):
-        return self.get_queryset().livres()
+    def maior_preco(self):
+        return self.aggregate('maior_preco')
 
 # Modelos
 
 # Atenção! As opções não garantem validação a menos que seja chamado o método clean
 GENEROS = (
   ('ACAO', 'Ação'),
+  ('AVENTURA', 'Aventura'),
   ('COMEDIA', 'Comédia'),
   ('DOCUMENTARIO', 'Documentário'),
   ('DRAMA', 'Drama'),
   ('INFANTIL', 'Infantil'),
   ('ROMANCE', 'Romance'),
   ('TERROR', 'Terror'),
+  ('OUTRO', 'Outro'),
 )
 
 class Filme(models.Model):
     titulo = models.CharField('Título', max_length=255)
     genero = models.CharField('Gênero', max_length=100, choices=GENEROS)
 
-    objects = FilmeManager()
+    objects = FilmeQuerySet.as_manager()
 
     def __str__(self):
         return self.titulo
@@ -134,8 +112,9 @@ class Sessao(models.Model):
     filme = models.ForeignKey(Filme, related_name='sessoes', on_delete=models.CASCADE)
     inicio = models.DateTimeField('Início')
     fim = models.DateTimeField('Fim')
+    preco = models.DecimalField('Preço', max_digits=5, decimal_places=2)
 
-    objects = SessaoManager()
+    objects = SessaoQuerySet.as_manager()
 
     def __str__(self):
         return f'Sessão de {self.inicio.time().strftime("%h:%M")} dia {self.inicio.date().strftime("%d/%m/%Y")}'
@@ -143,16 +122,13 @@ class Sessao(models.Model):
 
 class Ingresso(models.Model):
     sessao = models.ForeignKey(Sessao, related_name='ingressos', on_delete=models.CASCADE)
-    preco = models.DecimalField('Preço', max_digits=5, decimal_places=2)
     meia_entrada = models.BooleanField('Meia entrada', default=False)
-    assento = models.CharField('Assento', max_length=4, null=True, blank=True)
+
+    objects = IngressoQuerySet.as_manager()
 
     @property
-    def valor(self):
-        return self.preco / 2 if self.meia_entrada else self.preco
+    def preco(self):
+        return self.sessao.preco / 2 if self.meia_entrada else self.sessao.preco
 
     def __str__(self):
-        texto = f'R$ {self.valor}'
-        texto += f' - assento {self.assento}' if self.assento else ''
-        return texto
-
+        return f'R$ {self.preco}'
