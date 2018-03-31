@@ -19,7 +19,7 @@ class FilmeQuerySet(models.QuerySet):
         return self.filter(sessoes__inicio__date=date.today())
 
     def do_genero(self, genero):
-        return self.filter(genero=dict(GENEROS).get(genero, 'OUTRO'))
+        return self.filter(genero=genero)
 
 
 class SessaoQuerySet(models.QuerySet):
