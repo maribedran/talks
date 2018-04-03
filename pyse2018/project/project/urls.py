@@ -13,34 +13,16 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import include, url
+from django.conf import settings
+from django.urls import include, path
 from django.contrib import admin
-from django.http import HttpResponse
-from django.template import Context, Template
 
-
-def template_view(request):
-    texto = """
-    <h1>Classe de template: {{ template_class }}</h1>
-    <h1>Classe de Contexto: {{ context_class }}</h1>
-    """
-
-    template = Template(texto)
-    contexto = {
-        "template_class": str(Template),
-        "context_class": str(Context)
-    }
-    return HttpResponse(
-        template.render(Context(contexto))
-    )
-
-def olar(request):
-    return HttpResponse('<h1>Olar!</h1>')
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^$', olar),
-    url(r'^templates/$', template_view),
-    url(r'^cinema/', include('cinema.urls')),
+    path('admin/', admin.site.urls),
+    path('cinema/', include('cinema.urls')),
 ]
 
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]

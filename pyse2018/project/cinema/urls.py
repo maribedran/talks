@@ -1,17 +1,28 @@
-from django.conf.urls import include, url
+from django.urls import include, path
+from rest_framework.routers import SimpleRouter
 
 from cinema.views import (
-    FilmeCreateView,
-    FilmeDeleteView,
-    FilmeDetailView,
-    FilmeUpdateView,
-    FilmeListView,
+    FilmeViewSet,
+    CidadeViewSet,
+    CinemaViewSet,
+    SalaViewSet,
+    SessaoViewSet,
+    IngressoViewSet,
 )
 
+
+router = SimpleRouter()
+
+router.register(r'filmes', FilmeViewSet, base_name='filmes')
+router.register(r'cidades', CidadeViewSet, base_name='cidades')
+router.register(r'cinemas', CinemaViewSet, base_name='cinemas')
+router.register(r'salas', SalaViewSet, base_name='salas')
+router.register(r'sessoes', SessaoViewSet, base_name='sessoes')
+router.register(r'ingressos', IngressoViewSet, base_name='ingressos')
+
+app_name = 'cinema'
+
 urlpatterns = [
-    url(r'^$', FilmeListView.as_view(), name='filme-list'),
-    url(r'^criar/$', FilmeCreateView.as_view(), name='filme-create'),
-    url(r'^(?P<pk>[0-9]+)/$', FilmeDetailView.as_view(), name='filme-detail'),
-    url(r'^(?P<pk>[0-9]+)/editar/$', FilmeUpdateView.as_view(), name='filme-update'),
-    url(r'^(?P<pk>[0-9]+)/remover/$', FilmeDeleteView.as_view(), name='filme-delete'),
+    path('', include(router.urls))
 ]
+

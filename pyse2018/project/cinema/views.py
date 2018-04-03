@@ -1,35 +1,49 @@
-from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-    DeleteView
+from rest_framework.viewsets import ModelViewSet
+
+from cinema.models import (
+    Filme,
+    Cidade,
+    Cinema,
+    Sala,
+    Sessao,
+    Ingresso,
 )
-from django.urls import reverse_lazy
-
-from cinema.models import Filme
-
-
-class FilmeListView(ListView):
-    model = Filme
-
-
-class FilmeDetailView(DetailView):
-    model = Filme
+from cinema.serializers import (
+    FilmeSerializer,
+    CidadeSerializer,
+    CinemaSerializer,
+    SalaSerializer,
+    SessaoSerializer,
+    IngressoSerializer,
+)
 
 
-class FilmeCreateView(CreateView):
-    model = Filme
-    fields = ['titulo']
-    success_url = reverse_lazy('filme-list')
+class FilmeViewSet(ModelViewSet):
+    queryset = Filme.objects.all()
+    serializer_class = FilmeSerializer
 
 
-class FilmeUpdateView(UpdateView):
-    model = Filme
-    fields = ['titulo']
-    success_url = reverse_lazy('filme-list')
+class CidadeViewSet(ModelViewSet):
+    queryset = Cidade.objects.all()
+    serializer_class = CidadeSerializer
 
 
-class FilmeDeleteView(DeleteView):
-    model = Filme
-    success_url = reverse_lazy('filme-list')
+class CinemaViewSet(ModelViewSet):
+    queryset = Cinema.objects.all()
+    serializer_class = CinemaSerializer
+
+
+class SalaViewSet(ModelViewSet):
+    queryset = Sala.objects.all()
+    serializer_class = SalaSerializer
+
+
+class SessaoViewSet(ModelViewSet):
+    queryset = Sessao.objects.all()
+    serializer_class = SessaoSerializer
+
+
+class IngressoViewSet(ModelViewSet):
+    queryset = Ingresso.objects.all()
+    serializer_class = IngressoSerializer
+
