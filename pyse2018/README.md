@@ -219,7 +219,6 @@ Criar, atualizar e remover entradas no banco.
 class UserManager(BaseUserManager):
     ...
 
-
     def create_user(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
@@ -251,11 +250,6 @@ class FilmeManager(models.Manager):
 
     def de_acao(self, *args, **kwargs):
         return self.get_queryset().de_acao(*args, **kwargs)
-
-class Filme(models.Model):
-    titulo = models.CharField(max_length=255)
-
-    objects = FilmeManager()
 
 ```
 
@@ -364,7 +358,7 @@ class Ingresso(models.Model):
 
 ---
 
-## Os métodos de Managers e QuesySets
+## Os métodos de Managers e QuerySets
 
 ---
 
