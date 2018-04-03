@@ -1,6 +1,6 @@
 # Explorando QuerySets do Django
 
-Palestra apresentada na Python Sudeste em São Paulo e na Python Sul em Florianópolis em 2018.
+Palestra apresentada em 2018 na Python Sudeste em São Paulo e na Python Sul em Florianópolis.
 
 ---
 
@@ -61,11 +61,18 @@ LOGGING = {
 
 ---
 
-Instale o Debug Toolbar
+Instale o Django Debug Toolbar
+
+  django-debug-toolbar.readthedocs.io
+
+Para funcionar com o Rest Framework, adicione esta configuração aos settings.
 
 ```
-# TODO
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda x: True,
+}
 ```
+
 ---
 
 ## Bancos de dados relacionais
@@ -204,6 +211,17 @@ Podemos customizar o manager do nosso modelo criando uma classe que herde de `mo
 
 Criar, atualizar e remover entradas no banco.
 
+```
+class UserManager(BaseUserManager):
+    ...
+
+
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(username, email, password, **extra_fields)
+```
+
 ---
 
 ### O QuerySet
@@ -219,14 +237,16 @@ Os métodos de consulta no banco que usamos do atributo `objects`, como `all` e 
 
 ```
 class FilmeQuerySet(models.QuerySet):
-    pass
+    
+    def de_acao(self, *args, **kwargs):
+        return self.filter(genero='ACAO')
 
 class FilmeManager(models.Manager):
     def get_queryset(self):
         return FilmeQuerySet(self.model, using=self._db)
 
-    def get(self, *args, **kwargs):
-        return self.get_queryset().get(*args, **kwargs)
+    def de_acao(self, *args, **kwargs):
+        return self.get_queryset().de_acao(*args, **kwargs)
 
 class Filme(models.Model):
     titulo = models.CharField(max_length=255)
@@ -234,6 +254,12 @@ class Filme(models.Model):
     objects = FilmeManager()
 
 ```
+
+---
+
+#### Responsabilidades
+
+Realizar consultas no banco abstraindo os detalhes de implementação para o resto da aplicação.
 
 ---
 
