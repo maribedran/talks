@@ -165,6 +165,10 @@ class Sessao(models.Model):
     ...
 
     @property
+    def ocupacao(self):
+        return self.ingressos.count()
+
+    @property
     def lotada(self):
         return self.lotacao <= self.ocupacao
 
@@ -261,6 +265,14 @@ class Filme(models.Model):
 
 Realizar consultas no banco abstraindo os detalhes de implementação para o resto da aplicação.
 
+
+```
+class FilmeQuerySet(models.QuerySet):
+    
+    def de_acao(self, *args, **kwargs):
+        return self.filter(genero='ACAO')
+
+```
 ---
 
 ## As entidades da nossa aplicação
@@ -789,6 +801,55 @@ class SessaoQuerySet(models.QuerySet):
 
 ---
 
+### Usando QuerySets de forma eficienteno projeto
+
+---
+
+```
+class FilmeFilter(FilterSet):
+    da_cidade = django_filters.CharFilter(label='Da Cidade', method='filter_da_cidade')
+    do_cinema = django_filters.CharFilter(label='Do Cinema', method='filter_do_cinema')
+    de_hoje = django_filters.BooleanFilter(label='De Hoje', method='filter_de_hoje')
+
+    class Meta:
+        model = Filme
+        fields = ['titulo', 'genero', 'da_cidade', 'do_cinema', 'de_hoje']
+
+    def filter_da_cidade(self, queryset, name, value):
+        return queryset.da_cidade(value)
+
+    def filter_do_cinema(self, queryset, name, value):
+        return queryset.do_cinema(value)
+
+    def filter_de_hoje(self, queryset, name, value):
+        if value:
+            return queryset.de_hoje()
+        return queryset
+```
+---
+
+```
+class Sessao(models.Model):
+    ...
+
+    @property
+    def ocupacao(self):
+        return self.ingressos.count()
+
+
+class SessaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sessao
+        fields = ('id', 'sala', 'filme', 'inicio', 'fim', 'preco', 'ocupacao', )
+
+
+class SessaoViewSet(ModelViewSet):
+    queryset = Sessao.objects.prefetch_related('ingressos')
+    serializer_class = SessaoSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filter_class = SessaoFilter
+```
+---
 > That's all folks!
 
 [github.com/maribedran/talks/](https://github.com/maribedran)
