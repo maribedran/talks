@@ -1,5 +1,7 @@
 # Explorando QuerySets do Django
 
+Palestra apresentada na Python Sudeste em São Paulo e na Python Sul em Florianópolis em 2018.
+
 ---
 
 @maribedran
@@ -27,28 +29,66 @@ Tutoria do Django Girls
 
 ---
 
-## O que o Django faz com uma requisição?
+## Aprendendo SQL através do Django
 
-1. Recebe a requisição HTTP
-- WSGI é o ponto de entrada da aplicação
-2. Decide o que fazer com ela
-- Middlewares (segurança, sessões, autenticação etc.)
-- `urls.py` faz o roteamento *
-4. Devolve uma resposta HTTP
-- `views.py` delega tarefas *
-* Lógica de negócio *
-* Validação de dados (`forms.py` ou `serializers.py`)  *
-* Persistência (banco de dados, arquivos locais ou remotos) *
-* Formatação da resposta (**html**, json, xml, arquivo etc) *
+Para quem não conhece SQL a ORM pode ser uma ferramenta de aprendizagem.
+
+Leia as queries que estão sendo realizadas e experimente rodá-las direto no banco. A sintaxe do SQL é simples e intuitiva, em pouco tempo você aprende o básico.
+
+Observe a quantidade de queries sendo feitas e o tempo que elas demoram.
 
 ---
 
-## Arquivos padrão de uma app
+Ative os logs em nível DEBUG nos settings.
 
-1. `urls.py` faz o roteamento
-2. `views.py` processa a requisição
-3. `forms.py` (`serializers.py` no DRF) valida e formata dados
-4. `models.py` persiste e recupera dados no banco <==
+```
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',    # Loga no terminal
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',                    # Exibe todas as queries
+        },
+    },
+}
+```
+
+---
+
+Instale o Debug Toolbar
+
+```
+# TODO
+```
+---
+
+## Bancos de dados relacionais
+
+Em um banco relacional os dados são organizados em tabelas em que cada coluna define o nome e o tipo do campo que vai ser armazenado.
+
+As colunas que criam relações entre as tabelas são as chaves estrangeiras, onde uma entrada é uma referência a uma linha de outra tabela.
+
+---
+
+
+```
++------------------------------+            +-------------------+
+|           Pessoa             |            |   Empresa         |
++------+----------+------------+            +------+------------+
+| id   | nome     | empresa_id |            | id   | nome       |
++------+----------+------------+            +------+------------+
+| 1    | Maria    | 2          | ---------> | 2    | Empresa SA |
++------+----------+------------+            +------+------------+
+| 2    | João     | 4          | ---------> | 4    | Company    |
++------+----------+------------+            +------+------------+
+
+```
 
 ---
 
@@ -66,20 +106,6 @@ O tipo de campo declarado determina o tipo da coluna.
     Uma instância dessa classe representa uma entrada na tabela.
 
 Cada **atributo** na instância representa o **valor** da linha que ela representa para a respectiva coluna
-
----
-
-```
-+------------------------------+
-|           Pessoa             | <== classe
-+------+----------+------------+
-| id   | nome     | nascimento |
-+------+----------+------------+
-| 1    | Maria    | 01/05/1990 | <-- isntância
-+------+----------+------------+
-| 2    | João     | 30/10/2015 | <-- isntância
-+------+----------+------------+
-```
 
 ---
 
@@ -104,9 +130,51 @@ CREATE TABLE "cinema_cinema" (
 
 ---
 
+#### Responsabilidades
+
+Uma instância do modelo representa apenas uma entrada individual no banco, portanto os métodos de instância deveriam realizar somente operações que afetam um objeto individual.
+
+---
+
+1. Properties que retornam atributos da entidade ou de objetos relacionados
+
+```
+
+class Ingresso(models.Model):
+    ...
+
+    @property
+    def preco(self):
+        return self.sessao.preco / 2 if self.meia_entrada else self.sessao.preco
+```
+
+---
+
+2. Métodos que verificam estados e garantem sua integridade
+
+```
+
+class Sessao(models.Model):
+    ...
+
+    @property
+    def lotada(self):
+        return self.lotacao <= self.ocupacao
+
+    @property
+    def aberta_para_venda(self):
+        return self.inicio - timedelta(minutes=10) >= datetime.now()
+
+    def verificar_disponibilidade(self):
+      assert not self.lotada and self.aberta_para_venda
+
+```
+
+---
+
 ### O Managers
 
-    Uma instância do modelo representa apenas uma entrada no banco, para acessar e manipular conjuntos de entradas o Django tem as classes de **Managers**.
+    Para acessar e manipular conjuntos de entradas o Django tem as classes de **Managers**.
 
 ```
 Filme.objects.all()  # Retorna todos os filmes
@@ -130,6 +198,11 @@ class Filme(models.Model):
 
 Podemos customizar o manager do nosso modelo criando uma classe que herde de `models.Manager`
 
+---
+
+#### Responsabilidades
+
+Criar, atualizar e remover entradas no banco.
 
 ---
 
@@ -407,7 +480,7 @@ não acessa o banco
 SELECT ... FROM table WHERE ...
 ```
 
-- `exclude(**kwargs)` 
+- `exclude(**kwargs)`
 
 ```
 SELECT ... FROM table WHERE NOT ...

@@ -55,7 +55,7 @@ class IngressoQuerySet(models.QuerySet):
         return self._maior_preco().latest('maior_preco')
 
     def maior_preco(self):
-        return self.aggregate('maior_preco')
+        return self._maior_preco().aggregate('maior_preco')
 
 # Modelos
 
