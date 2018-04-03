@@ -37,7 +37,7 @@ class SalaSerializer(serializers.ModelSerializer):
 class SessaoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sessao
-        fields = '__all__'
+        fields = ('id', 'sala', 'filme', 'inicio', 'fim', 'preco', 'ocupacao', )
 
 
 class IngressoSerializer(serializers.ModelSerializer):

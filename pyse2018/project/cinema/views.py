@@ -49,7 +49,7 @@ class SalaViewSet(ModelViewSet):
 
 
 class SessaoViewSet(ModelViewSet):
-    queryset = Sessao.objects.all()
+    queryset = Sessao.objects.prefetch_related('ingressos')
     serializer_class = SessaoSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = SessaoFilter

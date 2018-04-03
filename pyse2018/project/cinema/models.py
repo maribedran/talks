@@ -116,6 +116,21 @@ class Sessao(models.Model):
 
     objects = SessaoQuerySet.as_manager()
 
+    @property
+    def ocupacao(self):
+        return self.ingressos.count()
+
+    @property
+    def lotada(self):
+        return self.lotacao <= self.ocupacao
+
+    @property
+    def aberta_para_venda(self):
+        return self.inicio - timedelta(minutes=10) >= datetime.now()
+
+    def verificar_disponibilidade(self):
+        assert not self.lotada and self.aberta_para_venda
+
     def __str__(self):
         return f'Sessão de {self.inicio.time().strftime("%h:%M")} dia {self.inicio.date().strftime("%d/%m/%Y")}'
 
