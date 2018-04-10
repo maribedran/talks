@@ -63,7 +63,7 @@ LOGGING = {
 
 Instale o Django Debug Toolbar
 
-  django-debug-toolbar.readthedocs.io
+[django-debug-toolbar.readthedocs.io](django-debug-toolbar.readthedocs.io)
 
 Para funcionar com o Rest Framework, adicione esta configuração aos settings.
 
@@ -105,12 +105,13 @@ As colunas que criam relações entre as tabelas são as chaves estrangeiras, on
 
 ### O Modelo
 
-    Um modelo no django é uma classe que define uma tabela no banco de dados.
+Um modelo no django é uma classe que define uma tabela no banco de dados.
 
 Cada **atributo** do modelo representa uma **coluna** da tabela.
+
 O tipo de campo declarado determina o tipo da coluna.
 
-    Uma instância dessa classe representa uma entrada na tabela.
+Uma instância dessa classe representa uma entrada na tabela.
 
 Cada **atributo** na instância representa o **valor** da linha que ela representa para a respectiva coluna
 
@@ -185,7 +186,7 @@ class Sessao(models.Model):
 
 ### O Managers
 
-    Para acessar e manipular conjuntos de entradas o Django tem as classes de **Managers**.
+Para acessar e manipular conjuntos de entradas o Django tem as classes de **Managers**.
 
 ```
 Filme.objects.all()  # Retorna todos os filmes
@@ -229,10 +230,11 @@ class UserManager(BaseUserManager):
 
 ### O QuerySet
 
-  O  **QuerySet** do modelo é uma classe que herda de `models.QuerySet` e pode ser customizada da mesma forma que se faz com o manager.
+O  **QuerySet** do modelo é uma classe que herda de `models.QuerySet` e pode ser customizada da mesma forma que se faz com o manager.
 
- As tarefas de consulta no banco realizadas pelos managers são chamadas ao QuerySet do modelo.
- Um objeto QuerySet é um iterável e seus elementos são instâncias do modelo ou objetos python simples.
+As tarefas de consulta no banco realizadas pelos managers são chamadas ao QuerySet do modelo.
+
+Um objeto QuerySet é um iterável e seus elementos são instâncias do modelo ou objetos python simples.
 
 ---
 
@@ -267,11 +269,14 @@ class FilmeQuerySet(models.QuerySet):
         return self.filter(genero='ACAO')
 
 ```
+
 ---
 
 ## As entidades da nossa aplicação
 
 Para dar um pouco de contexto, vamos usar uma aplicação que registra a programação de cinemas em diferentes cidades.
+
+---
 
 ```
 GENEROS = (
@@ -366,7 +371,7 @@ class Ingresso(models.Model):
 
 ---
 
-- `get(**kwargs)`
+- `get(id=10, nome='Maria')`
 
 ```
 SELECT ... FROM ... table WHERE ... ;
@@ -384,13 +389,13 @@ SELECT ... FROM ... table ORDER BY ... ASC LIMIT 1;
 SELECT ... FROM ... table ORDER BY .. DESC LIMIT 1;
 ```
 
-- `earliest(arg)`
+- `earliest('nome')`
 
 ```
 SELECT ... FROM ... table ORDER BY ... ASC LIMIT 1;
 ```
 
-- `latest(arg)`
+- `latest('nome')`
 
 ```
 SELECT ... FROM ... table ORDER BY .. DESC LIMIT 1;
@@ -406,49 +411,38 @@ Os demais retornam `None` se não houver entradas correspondentes.
 
 ---
 
-```
->>> Filme.objects.get(titulo='Exterminador do Futuro')
-<Filme: Exterminador do Futuro>
-
->>> Filme.objects.first()
-<Filme: Exterminador do Futuro>
-
->>> Filme.objects.last()
-<Filme: Exterminador do Futuro>
-
->>> Filme.objects.earliest('id')
-<Filme: Exterminador do Futuro>
-
->>> Filme.objects.latest('id')
-<Filme: Exterminador do Futuro>
-```
-
----
-
 ### Métodos que criam, atualizam e deletam
 
 ---
 
-- `create(**kwargs)`
+- `create(nome='Maria')`
 
 ```
 INSERT INTO table (...) VALUES (...);
 ```
 
-- `update(**kwargs)`
+- `update(nome='Maria')`
 
 ```
 UPDATE table SET <FIELD> = <VALUE>, ...;
 ```
 
-- `get_or_create(**kwargs)`
+- `bulk_create([Pessoa(nome='Maria'), Pessoa(nome='João')])`
+
+```
+INSERT INTO table (<FIELDS>) SELECT ... UNION ALL SELECT ...;
+```
+
+---
+
+- `get_or_create(nome='Maria')`
 
 ```
 SELECT ... FROM ... table WHERE ... ;
 ??? INSERT INTO table (...) VALUES (...);
 ```
 
-- `update_or_create(defaults={...}, **kwargs)`
+- `update_or_create(defaults={'idade': 30}, nome='Maria')`
 
 ```
 SELECT ... FROM ... table WHERE ...;
@@ -456,13 +450,8 @@ SELECT ... FROM ... table WHERE ...;
 ??? INSERT INTO table (...) VALUES (...);
 ```
 
-- `bulk_create`
 
-```
-INSERT INTO table (<FIELDS>) SELECT ... UNION ALL SELECT ...;
-```
-
-- `delete`
+- `delete()`
 
 ```
 DELETE FROM table WHERE ...;
@@ -470,31 +459,9 @@ DELETE FROM table WHERE ...;
 
 ---
 
-```
->>> Filme.objects.create(titulo='Exterminador do Futuro')
-Filme: Exterminador do Futuro>
-
->>> Filme.objects.update(titulo='Exterminador do Futuro 2')
-1
-
->>> Filme.objects.get_or_create(titulo='Curtindo a Vida Adoidado')
-(<Filme: Curtindo a Vida Adoidado>, True)
-
->>> Filme.objects.update_or_create(pk=1, defaults={'titulo': 'Batman'})
-(<Filme: Batman>, False)
-
->>> Filme.objects.bulk_create([Filme(titulo='Rambo'), Filme(titulo='Rambo 2')])
-[<Filme: Rambo>, <Filme: Rambo 2>]
-
->>> Filme.objects.all().delete()
-(4, {u'cinema.Filme': 4})
-```
-
----
-
 ### Métodos que retornam QuerySets
 
-Filtros
+---
 
 - `all()`
 
@@ -506,13 +473,13 @@ SELECT ... FROM ... table
 
 não acessa o banco
 
-- `filter(**kwargs)`
+- `filter(nome='Maria')`
 
 ```
 SELECT ... FROM table WHERE ...
 ```
 
-- `exclude(**kwargs)`
+- `exclude(nome='Maria')`
 
 ```
 SELECT ... FROM table WHERE NOT ...
@@ -526,11 +493,8 @@ SELECT DISTINCT ... FROM ... table
 
 ---
 
-### Métodos que retornam QuerySets
 
-Ordenação
-
-- `order_by(arg)`
+- `order_by('nome')`
 
 ```
 SELECT ... FROM ... table ORDER BY ...
@@ -545,34 +509,33 @@ SELECT ... FROM ... table ORDER BY DESC...
 
 ---
 
----### Métodos que retornam QuerySets
 
-Valores
-
-- `values(**kargs)`
+- `values('nome')`
 
 ```
 SELECT ... FROM table
 ```
 
-* Seleciona todos se não receber argumentos
-* Retorna um QuerySet com dicts
+Seleciona todos se não receber argumentos
+Retorna um QuerySet com dicts
 
-- `values_list(*args)`
-
-```
-SELECT ... FROM table
-```
-
-* Retorna um QuerySet com tuplas de valores
-
-- `only(*args)`
+- `values_list('nome')`
 
 ```
 SELECT ... FROM table
 ```
 
-- `defer(*args)`
+Retorna um QuerySet com tuplas de valores
+
+---
+
+- `only('nome')`
+
+```
+SELECT ... FROM table
+```
+
+- `defer('nome')`
 
 ```
 SELECT ... FROM table
@@ -581,19 +544,15 @@ SELECT ... FROM table
 
 ---
 
-### Métodos que retornam QuerySets
 
-Relações com outras tabelas
-
-- `select_related(*args)`
+- `select_related('filme')`
 
 ```
 SELECT ... FROM table
 INNER JOIN table2 ON table.table2_id = table2.id
 ```
 
-
-- `prefetch_related(*args)`
+- `prefetch_related('ingressos')`
 
 ```
 SELECT ... FROM table
@@ -602,84 +561,7 @@ SELECT ... FROM table2 WHERE table2.table_id IN …
 
 ---
 
-```
->>> Filme.objects.all()
-<QuerySet [<Filme: Rambo>, <Filme: Rambo 2>]>
-
->>> Filme.objects.none()
-<QuerySet []>
-
->>> Filme.objects.filter(titulo='Batman')
-<QuerySet [<Filme: Batman>]>
-
->>> Filme.objects.exclude(titulo__contains='Rambo')
-<QuerySet [<Filme: Batman>, <Filme: Curtindo a Vida Adoidado>]>
-
->>> Filme.objects.order_by('titulo')
-<QuerySet [<Filme: Batman>, <Filme: Curtindo a Vida Adoidado>, <Filme: Rambo>, <Filme: Rambo 2>]>
-
->>> Filme.objects.reverse()
-<QuerySet [<Filme: Batman>, <Filme: Rambo>, <Filme: Rambo 2>, <Filme: Curtindo a Vida Adoidado>]>
-
->>> Filme.objects.distinct()
-<QuerySet [<Filme: Batman>, <Filme: Rambo>, <Filme: Rambo 2>, <Filme: Curtindo a Vida Adoidado>]>
-```
-
----
-
-```
->>> Filme.objects.annotate(salas=F('sessoes__sala__nome'))
-<QuerySet [<Filme: Batman>, <Filme: Rambo>, <Filme: Rambo 2>, <Filme: Curtindo a Vida Adoidado>]>
-
->>> Filme.objects.annotate(salas=F('sessoes__sala__nome')).first().salas
-u'1'
-
->>> Filme.objects.values()
-<QuerySet [{'titulo': u'Batman', u'id': 3}, {'titulo': u'Rambo', u'id': 5}, {'titulo': u'Rambo 2',
-u'id': 6}, {'titulo': u'Curtindo a Vida Adoidado', u'id': 7}]>
-
->>> Filme.objects.values_list()
-<QuerySet [(3, u'Batman'), (5, u'Rambo'), (6, u'Rambo 2'), (7, u'Curtindo a Vida Adoidado')]>
-
->>> Filme.objects.values_list('id', flat=True)
-<QuerySet [3, 5, 6, 7]>
-```
-
----
-
-
-```
->>> Sessao.objects.select_related('sala__cinema')
-<QuerySet [<Sessao: Sessao object>, <Sessao: Sessao object>]>
-
->>> str(Sessao.objects.select_related('sala__cinema').query)
-'SELECT "cinema_sessao"."id", "cinema_sessao"."sala_id", "cinema_sessao"."filme_id", "cinema_sessao".
-"inicio", "cinema_sessao"."fim", "cinema_sala"."id", "cinema_sala"."nome", "cinema_sala"."cinema_id",
-"cinema_cinema"."id", "cinema_cinema"."nome", "cinema_cinema"."cidade_id" FROM "cinema_sessao" INNER
-JOIN "cinema_sala" ON ("cinema_sessao"."sala_id" = "cinema_sala"."id") INNER JOIN "cinema_cinema" ON
-("cinema_sala"."cinema_id" = "cinema_cinema"."id")'
-```
-
----
-
-```
->>> Filme.objects.prefetch_related('sessoes__sala__cinema')
-<QuerySet [<Filme: Batman>, <Filme: Rambo>, <Filme: Rambo 2>, <Filme: Curtindo a Vida Adoidado>]>
-
->>> str(Filme.objects.prefetch_related('sessoes__sala__cinema').query)
-'SELECT "cinema_filme"."id", "cinema_filme"."titulo" FROM "cinema_filme"'
-
->>> str(Filme.objects.prefetch_related('sessoes__sala__cinema').filter(sessoes__sala__cinema__nome
-='Cinemark').query)
-'SELECT "cinema_filme"."id", "cinema_filme"."titulo" FROM "cinema_filme" INNER JOIN "cinema_sessao"
-ON ("cinema_filme"."id" = "cinema_sessao"."filme_id") INNER JOIN "cinema_sala" ON ("cinema_sessao".
-"sala_id" = "cinema_sala"."id") INNER JOIN "cinema_cinema" ON ("cinema_sala"."cinema_id" = "cinema_
-cinema"."id") WHERE "cinema_cinema"."nome" = Cinemark'
-```
-
----
-
-    Todos os métodos que retornam querysets podem ter chamadas encadeadas e a execução deles é *lazzy*, ou seja, é possível chamar vários métodos que fazem queries diferentes, mas que só serão executadas uma vez.
+Todos os métodos que retornam querysets podem ter chamadas encadeadas e a execução deles é *lazzy*, ou seja, é possível chamar vários métodos que fazem queries diferentes, mas que só serão executadas uma vez.
 
 ---
 
@@ -691,8 +573,8 @@ Métodos que realizam consultas no banco e não retornam querysets
 SELECT ... FROM table;
 ```
 
-* Retorna um objeto gerador
-* Só realiza a query quando o primeiro elemento é acessado
+Retorna um objeto gerador
+Só realiza a query quando o primeiro elemento é acessado
 
 - `exists()`
 
@@ -700,7 +582,7 @@ SELECT ... FROM table;
 SELECT (1) AS "a" FROM table LIMIT 1;
 ```
 
-* Retorna um booleano
+Retorna um booleano
 
 - `count()`
 
@@ -708,7 +590,7 @@ SELECT (1) AS "a" FROM table LIMIT 1;
 SELECT COUNT(*) AS "__count" FROM table;
 ```
 
-* Retorna um inteiro
+Retorna um inteiro
 
 - `aggregate(expression)`
 
@@ -716,31 +598,13 @@ SELECT COUNT(*) AS "__count" FROM table;
 SELECT <EXPRESSIO> AS <ALIAS> FROM table;
 ```
 
-* Retorna um dict com o valor da expressão
-
----
-
-```
->>> Filme.objects.iterator()
-<generator object __iter__ at 0x7f7d4b6479b0>
-
->>> Filme.objects.exists()
-True
-
->>> Filme.objects.count()
-4
-
->>> from django.db.models import Max
->>> Filme.objects.aggregate(Max('titulo'))
-{'titulo__max': u'Rambo 2'}
-```
+Retorna um dict com o valor da expressão
 
 ---
 
 ## Customizando Querysets
 
-    Criando uma classe de ``QuerySet`` customizada, podemos criar métodos especiais para fazer consultas que podem ser reaproveitadas em diversos lugares do código.
-
+Criando uma classe de ``QuerySet`` customizada, podemos criar métodos especiais para fazer consultas que podem ser reaproveitadas em diversos lugares do código.
 
 ---
 
@@ -820,6 +684,7 @@ class FilmeFilter(FilterSet):
             return queryset.de_hoje()
         return queryset
 ```
+
 ---
 
 ```

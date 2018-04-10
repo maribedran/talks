@@ -2,6 +2,7 @@ from datetime import date
 from django.db import models
 from django.db.models import Count, F
 
+
 # QuerySets
 
 class FilmeQuerySet(models.QuerySet):
@@ -20,6 +21,11 @@ class FilmeQuerySet(models.QuerySet):
 
     def do_genero(self, genero):
         return self.filter(genero=genero)
+
+    def prefetch_sessoes_de_hoje(self):
+        sessao_qs = Sessao.objects.de_hoje().select_related('sala__cinema')
+        prefetch = models.Prefetch('sessoes', queryset=sessao_qs, to_attr='sessoes_de_hoje')
+        return self.prefetch_related(prefetch)
 
 
 class SessaoQuerySet(models.QuerySet):
@@ -56,6 +62,7 @@ class IngressoQuerySet(models.QuerySet):
 
     def maior_preco(self):
         return self._maior_preco().aggregate('maior_preco')
+
 
 # Modelos
 
@@ -132,7 +139,7 @@ class Sessao(models.Model):
         assert not self.lotada and self.aberta_para_venda
 
     def __str__(self):
-        return f'Sessão de {self.inicio.time().strftime("%h:%M")} dia {self.inicio.date().strftime("%d/%m/%Y")}'
+        return f'Sessão de {self.inicio.time().strftime("%H:%M")} dia {self.inicio.date().strftime("%d/%m/%Y")}'
 
 
 class Ingresso(models.Model):
